@@ -5,6 +5,7 @@ import ServerData from "./ServerData";
 import MMOConnection from "../mmocore/MMOConnection";
 import LoginPacketHandler from "./LoginPacketHandler";
 import MMOConfig from "../mmocore/MMOConfig";
+import EventEmitter from "../mmocore/EventEmitter";
 
 export default class LoginClient extends MMOClient {
   private _username: string;
@@ -142,8 +143,8 @@ export default class LoginClient extends MMOClient {
     this._config = config;
   }
 
-  constructor(config: MMOConfig, onSuccessCallback?: () => void) {
-    super(new MMOConnection(config));
+  constructor(config: MMOConfig, onSuccessCallback?: () => void, localEventEmitter?: EventEmitter) {
+    super(new MMOConnection(config), localEventEmitter);
     this.Config = config;
     (this.Connection as MMOConnection<LoginClient>).Client = this;
     this.PacketHandler = new LoginPacketHandler();

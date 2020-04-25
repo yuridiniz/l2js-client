@@ -18,6 +18,7 @@ import L2PartyPet from "../entities/L2PartyPet";
 import L2Item from "../entities/L2Item";
 import L2Buff from "../entities/L2Buff";
 import L2Skill from "../entities/L2Skill";
+import EventEmitter from "../mmocore/EventEmitter";
 
 export default class GameClient extends MMOClient {
   private _loginClient: LoginClient;
@@ -94,7 +95,7 @@ export default class GameClient extends MMOClient {
     this._activeChar = char;
   }
 
-  constructor(lc: LoginClient, config: MMOConfig) {
+  constructor(lc: LoginClient, config: MMOConfig, localEventEmitter?: EventEmitter) {
     super(
       new MMOConnection(
         config.assign({
@@ -102,7 +103,8 @@ export default class GameClient extends MMOClient {
           loginServerIp: lc.SelectedServer.Ipv4(),
           loginServerPort: lc.SelectedServer.Port,
         })
-      )
+      ),
+      localEventEmitter
     );
 
     this.Config = config;

@@ -1,7 +1,7 @@
 import MMOConnection from "./MMOConnection";
 import ReceivablePacket from "./ReceivablePacket";
 import IPacketHandler from "./IPacketHandler";
-import { GlobalEvents } from "./EventEmitter";
+import EventEmitter from "./EventEmitter";
 import IConnection from "./IConnection";
 
 export default abstract class MMOClient {
@@ -9,9 +9,13 @@ export default abstract class MMOClient {
 
   private _packetHandler!: IPacketHandler<MMOClient>;
 
-  constructor(con: IConnection) {
+  private _eventEmitter?: EventEmitter;
+
+  constructor(con: IConnection, localEventEmitter? : EventEmitter) {
     this._connection = con;
+    this._eventEmitter = localEventEmitter;
   }
+  
   abstract encrypt(var1: Uint8Array, var2: number, var3: number): void;
 
   abstract decrypt(var1: Uint8Array, var2: number, var3: number): void;
@@ -26,6 +30,14 @@ export default abstract class MMOClient {
 
   set PacketHandler(handler: IPacketHandler<MMOClient>) {
     this._packetHandler = handler;
+  }
+
+  get Event(): EventEmitter | undefined {
+    return this._eventEmitter;
+  }
+
+  set Event(eventEmitter: EventEmitter | undefined) {
+    this._eventEmitter = eventEmitter;
   }
 
   private _buffer: Uint8Array = new Uint8Array();
@@ -63,7 +75,7 @@ export default abstract class MMOClient {
           }
 
           if (rcp.read()) {
-            GlobalEvents.fire(`packet:${rcp.constructor.name}`, rcp);
+            this._eventEmitter?.fire(`packet:${rcp.constructor.name}`, rcp);
             rcp.run();
           }
         }, 0);

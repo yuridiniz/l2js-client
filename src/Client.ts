@@ -2,7 +2,7 @@ import MMOConfig from "./mmocore/MMOConfig";
 import MMOClient from "./mmocore/MMOClient";
 import LoginClient from "./network/LoginClient";
 import GameClient from "./network/GameClient";
-import { EventHandler, GlobalEvents } from "./mmocore/EventEmitter";
+import { EventHandler, EventEmitter } from "./mmocore/EventEmitter";
 import L2ObjectCollection from "./entities/L2ObjectCollection";
 import L2User from "./entities/L2User";
 import L2Creature from "./entities/L2Creature";
@@ -53,6 +53,8 @@ import CommandRequestDuel from "./commands/CommandRequestDuel";
  */
 export class Client {
   private _config: MMOConfig = new MMOConfig();
+
+  private _event: EventEmitter = new EventEmitter();
 
   private _lc!: LoginClient;
 
@@ -137,14 +139,14 @@ export class Client {
     }
 
     this._lc = new LoginClient(this._config, () => {
-      this._gc = new GameClient(this._lc, this._config);
-    });
+      this._gc = new GameClient(this._lc, this._config, this._event);
+    }, this._event);
 
     return this;
   }
 
   on(event: string, handler: EventHandler): this {
-    GlobalEvents.on(event, handler);
+    this._event?.on(event, handler);
     return this;
   }
 }
